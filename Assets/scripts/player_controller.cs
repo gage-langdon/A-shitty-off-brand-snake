@@ -26,9 +26,21 @@ public class player_controller : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKey("w"))
+        if (Input.GetKey(up))
         {
             transform.position = new Vector3(transform.position.x, transform.position.y + 0.1f, transform.position.z);
+        }
+        if (Input.GetKey(down))
+        {
+            transform.position = new Vector3(transform.position.x, transform.position.y - 0.1f, transform.position.z);
+        }
+        if (Input.GetKey(right))
+        {
+            transform.position = new Vector3(transform.position.x + 0.1f, transform.position.y, transform.position.z);
+        }
+        if (Input.GetKey(left))
+        {
+            transform.position = new Vector3(transform.position.x - 0.1f, transform.position.y, transform.position.z);
         }
     }
 }
