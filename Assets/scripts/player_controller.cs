@@ -12,14 +12,26 @@ public class player_controller : MonoBehaviour
     public string right = "d";
 
     private Transform transform;
+    
+    private float minX;
+    private float maxX;
+    private float minY;
+    private float maxY;
 
     // Start is called before the first frame update
     void Start()
     {
         transform = GetComponent<Transform>();
-        Debug.Log("x: " + transform.position.x);
 
         transform.position = new Vector3(0, 0, 0);
+
+        float vertExtent = Camera.main.GetComponent<Camera>().orthographicSize;
+        float horzExtent = vertExtent * Screen.width / Screen.height;
+        // Calculations assume map is position at the origin
+        minX = -horzExtent;
+        maxX = horzExtent;
+        minY = -vertExtent;
+        maxY = vertExtent;
 
     }
 
@@ -28,19 +40,35 @@ public class player_controller : MonoBehaviour
     {
         if (Input.GetKey(up))
         {
-            transform.position = new Vector3(transform.position.x, transform.position.y + 0.1f, transform.position.z);
+            if ((transform.position.y + 0.1f) > maxY) {
+                transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z);
+            } else {
+                transform.position = new Vector3(transform.position.x, transform.position.y + 0.1f, transform.position.z);
+            }
         }
         if (Input.GetKey(down))
         {
-            transform.position = new Vector3(transform.position.x, transform.position.y - 0.1f, transform.position.z);
+            if ((transform.position.y - 0.1f) < minY) {
+                transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z);
+            } else {
+                transform.position = new Vector3(transform.position.x, transform.position.y - 0.1f, transform.position.z);
+            }
         }
         if (Input.GetKey(right))
         {
-            transform.position = new Vector3(transform.position.x + 0.1f, transform.position.y, transform.position.z);
+            if ((transform.position.x + 0.1f) > maxX) {
+                transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z);
+            } else {
+                transform.position = new Vector3(transform.position.x + 0.1f, transform.position.y, transform.position.z);
+            }
         }
         if (Input.GetKey(left))
         {
-            transform.position = new Vector3(transform.position.x - 0.1f, transform.position.y, transform.position.z);
+            if ((transform.position.x - 0.1f) < minX) {
+                transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z);
+            } else {
+                transform.position = new Vector3(transform.position.x - 0.1f, transform.position.y, transform.position.z);
+            }
         }
     }
 }
