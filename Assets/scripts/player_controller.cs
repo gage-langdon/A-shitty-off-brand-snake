@@ -12,61 +12,70 @@ public class player_controller : MonoBehaviour
     public string right = "d";
 
     private Transform transform;
-    
-    private float minX;
-    private float maxX;
-    private float minY;
-    private float maxY;
+    private MeshRenderer meshRenderer;
+    public EdgeCollider2D boundry; // The background blob boundry, this needs to be dragged and dropped from the editor
+    public float boundryPadding = 0.1f;
+    public float playerSpeed = 0.1f;
 
     // Start is called before the first frame update
     void Start()
     {
         transform = GetComponent<Transform>();
+        meshRenderer = GetComponentInChildren<MeshRenderer>();
 
+        // Spawn player in center of map
         transform.position = new Vector3(0, 0, 0);
-
-        float vertExtent = Camera.main.GetComponent<Camera>().orthographicSize;
-        float horzExtent = vertExtent * Screen.width / Screen.height;
-
-        GameObject playerBody = GameObject.Find("PlayerBody");
-
-        float xAdjustment = playerBody.gameObject.transform.localScale.x / 2;
-        float yAdjustment = playerBody.gameObject.transform.localScale.y / 2;
-
-        // Calculations assume map is position at the origin
-        minX = -horzExtent + xAdjustment;
-        maxX = horzExtent - xAdjustment;
-        minY = -vertExtent + yAdjustment;
-        maxY = vertExtent - yAdjustment;
-
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKey(up))
-        {
-            if ((transform.position.y + 0.1f) <= maxY) {
-                transform.position = new Vector3(transform.position.x, transform.position.y + 0.1f, transform.position.z);
-            }
-        }
-        if (Input.GetKey(down))
-        {
-            if ((transform.position.y - 0.1f) >= minY) {
-                transform.position = new Vector3(transform.position.x, transform.position.y - 0.1f, transform.position.z);
-            }
-        }
-        if (Input.GetKey(right))
-        {
-            if ((transform.position.x + 0.1f) <= maxX) {
-                transform.position = new Vector3(transform.position.x + 0.1f, transform.position.y, transform.position.z);
-            }
-        }
-        if (Input.GetKey(left))
-        {
-            if ((transform.position.x - 0.1f) >= minX) {
-                transform.position = new Vector3(transform.position.x - 0.1f, transform.position.y, transform.position.z);
-            }
-        }
+        onPlayerInput();
     }
+
+    void onPlayerInput()
+    {
+        if (Input.GetKey(up) && !isPlayerBound(transform.position, up))
+            transform.position = new Vector3(transform.position.x, transform.position.y + playerSpeed, transform.position.z);
+
+        if (Input.GetKey(down) && !isPlayerBound(transform.position, down))
+            transform.position = new Vector3(transform.position.x, transform.position.y - playerSpeed, transform.position.z);
+
+        if (Input.GetKey(right) && !isPlayerBound(transform.position, left))
+            transform.position = new Vector3(transform.position.x + playerSpeed, transform.position.y, transform.position.z);
+
+        if (Input.GetKey(left) && !isPlayerBound(transform.position, right))
+            transform.position = new Vector3(transform.position.x - playerSpeed, transform.position.y, transform.position.z);
+
+    }
+
+    bool isPlayerBound(Vector3 playerPosition, string keyPressed)
+    {
+        // Find the closet boundry point nearest the player
+        // and determine if the player can move toward it or not
+        // depending on the location the player is moving
+
+        // We know the player is nearing a point above it if the 
+        // distance of the closets boundry point is positive
+        // on the y axis.
+        Vector3 closetBoundryPoint = boundry.ClosestPoint(playerPosition);
+        Vector3 closestPlayerPointToBoundry = meshRenderer.bounds.ClosestPoint(closetBoundryPoint);
+        float distanceFromClosestBountryPoint = Vector3.Distance(closetBoundryPoint, closestPlayerPointToBoundry);
+        Vector3 distanceFromCenter = new Vector3(0f, 0f, 0f) - closetBoundryPoint;
+        if (distanceFromClosestBountryPoint >= 0f && distanceFromClosestBountryPoint < boundryPadding)
+        {
+            if (keyPressed == up && distanceFromCenter.y < 0f)
+                return true;
+            if (keyPressed == down && distanceFromCenter.y > 0f)
+                return true;
+            if (keyPressed == left && distanceFromCenter.x < 0f)
+                return true;
+            if (keyPressed == right && distanceFromCenter.x > 0f)
+                return true;
+
+
+        }
+        return false;
+    }
+
 }
