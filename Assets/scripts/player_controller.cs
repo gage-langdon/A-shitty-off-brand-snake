@@ -16,22 +16,38 @@ public class player_controller : MonoBehaviour
     public EdgeCollider2D boundry; // The background blob boundry, this needs to be dragged and dropped from the editor
     public float boundryPadding = 0.1f;
     public float playerSpeed = 0.1f;
+    public GameObject head;
     public GameObject playerBodySection;
+    public int startingSize = 3;
+    private List<GameObject> playerBodySections = new List<GameObject>();
+    private int playerBodyLength = 1;
 
     // Start is called before the first frame update
     void Start()
     {
         transform = GetComponent<Transform>();
         meshRenderer = GetComponentInChildren<MeshRenderer>();
+        Debug.Log("head" + head);
+        playerBodySections.Add(head);
 
-        // Spawn player in center of map
-        // transform.position = new Vector3(0, 0, 0);
+        // Spawn initial body
+        for (int i = 0; i < startingSize; i++)
+            spawnNewBodySection();
+
     }
 
     // Update is called once per frame
     void Update()
     {
         onPlayerInput();
+        movePlayerBody();
+
+        float spawnRNG = Random.Range(0f, 1f);
+        if (spawnRNG < .01f)
+        {
+            spawnNewBodySection();
+        }
+
     }
 
     void onPlayerInput()
@@ -77,6 +93,35 @@ public class player_controller : MonoBehaviour
 
         }
         return false;
+    }
+
+    void spawnNewBodySection()
+    {
+        GameObject newBodySection = Instantiate(playerBodySection);
+        Vector3 lastPosition = getLastBodySectionPosition();
+        newBodySection.transform.position = new Vector3(lastPosition.x, lastPosition.y, lastPosition.z);
+        playerBodySections.Add(newBodySection);
+    }
+
+    Vector3 getLastBodySectionPosition()
+    {
+        GameObject lastbodySection = playerBodySections[playerBodySections.Count - 1];
+        return lastbodySection.transform.position;
+    }
+
+    void movePlayerBody()
+    {
+        if (playerBodySections.Count < 2) return; // dont need to interpolate if only head exists
+
+        // Worm body nodes should follow the node that came before it
+        for (int i = 0; i < playerBodySections.Count - 1; i++)
+        {
+            GameObject currentBodySection = playerBodySections[i + 1];
+            GameObject targetBodySection = playerBodySections[i];
+
+            // move the next section toward the current section over time
+            currentBodySection.transform.position = Vector3.Lerp(currentBodySection.transform.position, targetBodySection.transform.position, Time.deltaTime / playerSpeed);
+        }
     }
 
 }
