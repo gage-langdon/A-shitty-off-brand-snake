@@ -16,6 +16,7 @@ public class player_controller : MonoBehaviour
     public EdgeCollider2D boundry; // The background blob boundry, this needs to be dragged and dropped from the editor
     public float boundryPadding = 0.1f;
     public float playerSpeed = 0.1f;
+    public GameObject playerBodySection;
 
     // Start is called before the first frame update
     void Start()
@@ -24,7 +25,7 @@ public class player_controller : MonoBehaviour
         meshRenderer = GetComponentInChildren<MeshRenderer>();
 
         // Spawn player in center of map
-        transform.position = new Vector3(0, 0, 0);
+        // transform.position = new Vector3(0, 0, 0);
     }
 
     // Update is called once per frame
