@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
+
 
 public class player_controller : MonoBehaviour
 {
@@ -13,7 +15,7 @@ public class player_controller : MonoBehaviour
 
     private Transform transform;
     private MeshRenderer meshRenderer;
-    public EdgeCollider2D boundry; // The background blob boundry, this needs to be dragged and dropped from the editor
+    private EdgeCollider2D boundry; // The background blob boundry, this needs to be dragged and dropped from the editor
     public float boundryPadding = 0.1f;
     public float playerSpeed = 0.1f;
     public GameObject head;
@@ -21,25 +23,36 @@ public class player_controller : MonoBehaviour
     public int startingSize = 3;
     private List<GameObject> playerBodySections = new List<GameObject>();
     private int playerBodyLength = 1;
+    private bool isPlayerMoving = false;
+
+
+    bool moveUp = true; // default to move up on game start
+    bool moveDown = false;
+    bool moveRight = false;
+    bool moveLeft = false;
+
 
     // Start is called before the first frame update
     void Start()
     {
         transform = GetComponent<Transform>();
         meshRenderer = GetComponentInChildren<MeshRenderer>();
-        Debug.Log("head" + head);
-        playerBodySections.Add(head);
+        boundry = GameObject.FindGameObjectWithTag("boundry").GetComponent<EdgeCollider2D>();
 
         // Spawn initial body
+        playerBodySections.Add(head);
         for (int i = 0; i < startingSize; i++)
             spawnNewBodySection();
+
+
 
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
-        onPlayerInput();
+        getKeyboardInput();
+        // getControllerInput();
         movePlayerBody();
 
         float spawnRNG = Random.Range(0f, 1f);
@@ -50,20 +63,59 @@ public class player_controller : MonoBehaviour
 
     }
 
-    void onPlayerInput()
+    void getControllerInput()
     {
-        if (Input.GetKey(up) && !isPlayerBound(transform.position, up))
+        // Not currently working
+        // no input seems to come in even though the controller is seen
+        var controller = Gamepad.current;
+        if (controller == null) return;
+        Debug.Log("A: " + controller.buttonEast.isPressed);
+        Debug.Log("x: " + controller.leftStick.ReadValue());
+
+    }
+
+
+    void getKeyboardInput()
+    {
+        isPlayerMoving = false; 
+
+        // If the player is going to be moving at all, reset the movement cache
+        if (Input.GetKey(up) || Input.GetKey(down) || Input.GetKey(left) || Input.GetKey(right))
+        {
+            moveUp = false;
+            moveDown = false;
+            moveRight = false;
+            moveLeft = false;
+        }
+
+        // Set the movement cache (we want the worm to continuasly move, so this just sets the last direction)
+        if (Input.GetKey(up)) moveUp = true;
+        if (Input.GetKey(down)) moveDown = true;
+        if (Input.GetKey(left)) moveLeft = true;
+        if (Input.GetKey(right)) moveRight = true;
+
+
+        // Can the player move anymore in the current direction?
+        if (moveUp == true && !isPlayerBound(transform.position, up))
+        {
             transform.position = new Vector3(transform.position.x, transform.position.y + playerSpeed, transform.position.z);
-
-        if (Input.GetKey(down) && !isPlayerBound(transform.position, down))
+            isPlayerMoving = true;
+        }
+        if (moveDown && !isPlayerBound(transform.position, down))
+        {
             transform.position = new Vector3(transform.position.x, transform.position.y - playerSpeed, transform.position.z);
-
-        if (Input.GetKey(right) && !isPlayerBound(transform.position, left))
+            isPlayerMoving = true;
+        }
+        if (moveRight && !isPlayerBound(transform.position, left))
+        {
             transform.position = new Vector3(transform.position.x + playerSpeed, transform.position.y, transform.position.z);
-
-        if (Input.GetKey(left) && !isPlayerBound(transform.position, right))
+            isPlayerMoving = true;
+        }
+        if (moveLeft && !isPlayerBound(transform.position, right))
+        {
             transform.position = new Vector3(transform.position.x - playerSpeed, transform.position.y, transform.position.z);
-
+            isPlayerMoving = true;
+        }
     }
 
     bool isPlayerBound(Vector3 playerPosition, string keyPressed)
@@ -75,10 +127,14 @@ public class player_controller : MonoBehaviour
         // We know the player is nearing a point above it if the 
         // distance of the closets boundry point is positive
         // on the y axis.
-        Vector3 closetBoundryPoint = boundry.ClosestPoint(playerPosition);
-        Vector3 closestPlayerPointToBoundry = meshRenderer.bounds.ClosestPoint(closetBoundryPoint);
-        float distanceFromClosestBountryPoint = Vector3.Distance(closetBoundryPoint, closestPlayerPointToBoundry);
-        Vector3 distanceFromCenter = new Vector3(0f, 0f, 0f) - closetBoundryPoint;
+        Vector3 closestBoundryPoint = boundry.ClosestPoint(playerPosition);
+        Vector2 closestBoundryPoint2D = new Vector2(closestBoundryPoint.x, closestBoundryPoint.y);
+
+        Vector3 closestPlayerPointToBoundry = meshRenderer.bounds.ClosestPoint(closestBoundryPoint2D);
+        Vector2 closestPlayerPointToBoundry2D = new Vector2(closestPlayerPointToBoundry.x, closestPlayerPointToBoundry.y);
+
+        float distanceFromClosestBountryPoint = Vector2.Distance(closestBoundryPoint2D, closestPlayerPointToBoundry2D);
+        Vector2 distanceFromCenter = new Vector2(0f, 0f) - closestBoundryPoint2D;
         if (distanceFromClosestBountryPoint >= 0f && distanceFromClosestBountryPoint < boundryPadding)
         {
             if (keyPressed == up && distanceFromCenter.y < 0f)
@@ -112,6 +168,7 @@ public class player_controller : MonoBehaviour
     void movePlayerBody()
     {
         if (playerBodySections.Count < 2) return; // dont need to interpolate if only head exists
+        if (isPlayerMoving == false) return; // dont move the nodes if the player isnt moving
 
         // Worm body nodes should follow the node that came before it
         for (int i = 0; i < playerBodySections.Count - 1; i++)

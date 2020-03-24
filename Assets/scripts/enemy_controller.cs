@@ -4,15 +4,19 @@ using UnityEngine;
 
 public class enemy_controller : MonoBehaviour
 {
-    // Start is called before the first frame update
+
+    public float minSize = 0.02f;
+    public float maxSize = 0.2f;
+
     void Start()
     {
-        
+        setRandomSize();
     }
 
-    // Update is called once per frame
-    void Update()
+    // Enemies are random size
+    void setRandomSize()
     {
-        
+        float randomSize = Random.Range(minSize, maxSize);
+        this.transform.localScale = new Vector3(randomSize,randomSize,randomSize);
     }
 }
