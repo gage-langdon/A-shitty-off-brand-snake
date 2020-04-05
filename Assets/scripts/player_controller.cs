@@ -15,7 +15,8 @@ public class player_controller : MonoBehaviour
 
     private Transform transform;
     private MeshRenderer meshRenderer;
-    private EdgeCollider2D boundry; // The background blob boundry, this needs to be dragged and dropped from the editor
+    private GameObject boundry; // The background blob boundry, this needs to have a EdgeCollider2D attached and a tag of "boundry"
+    private EdgeCollider2D boundryCollider;
     public float boundryPadding = 0.1f;
     public float playerSpeed = 0.1f;
     public GameObject head;
@@ -37,7 +38,8 @@ public class player_controller : MonoBehaviour
     {
         transform = GetComponent<Transform>();
         meshRenderer = GetComponentInChildren<MeshRenderer>();
-        boundry = GameObject.FindGameObjectWithTag("boundry").GetComponent<EdgeCollider2D>();
+        boundry = GameObject.FindGameObjectWithTag("boundry");
+        boundryCollider = boundry.GetComponent<EdgeCollider2D>();
 
         // Spawn initial body
         playerBodySections.Add(head);
@@ -55,13 +57,20 @@ public class player_controller : MonoBehaviour
         // getControllerInput();
         movePlayerBody();
 
-        float spawnRNG = Random.Range(0f, 1f);
-        if (spawnRNG < .01f)
-        {
-            spawnNewBodySection();
-        }
-
+        // randomly spawn new body parts
+        // float spawnRNG = Random.Range(0f, 1f);
+        // if (spawnRNG < .01f)
+        // {
+        //     spawnNewBodySection();
+        // }
     }
+
+    void OnCollisionEnter(Collision collision)
+    {
+        GameObject collidedGO = collision.gameObject;
+        Debug.Log("collision with player: " + collidedGO.name);
+    }
+
 
     void getControllerInput()
     {
@@ -77,10 +86,16 @@ public class player_controller : MonoBehaviour
 
     void getKeyboardInput()
     {
-        isPlayerMoving = false; 
+        isPlayerMoving = false;
+
+        // Where is the user wanting to move?
+        bool keyPressedUp = Input.GetKey(up);
+        bool keyPressedDown = Input.GetKey(down);
+        bool keyPressedLeft = Input.GetKey(left);
+        bool keyPressedRight = Input.GetKey(right);
 
         // If the player is going to be moving at all, reset the movement cache
-        if (Input.GetKey(up) || Input.GetKey(down) || Input.GetKey(left) || Input.GetKey(right))
+        if (keyPressedUp || keyPressedDown || keyPressedLeft || keyPressedRight)
         {
             moveUp = false;
             moveDown = false;
@@ -127,7 +142,7 @@ public class player_controller : MonoBehaviour
         // We know the player is nearing a point above it if the 
         // distance of the closets boundry point is positive
         // on the y axis.
-        Vector3 closestBoundryPoint = boundry.ClosestPoint(playerPosition);
+        Vector3 closestBoundryPoint = boundryCollider.ClosestPoint(playerPosition);
         Vector2 closestBoundryPoint2D = new Vector2(closestBoundryPoint.x, closestBoundryPoint.y);
 
         Vector3 closestPlayerPointToBoundry = meshRenderer.bounds.ClosestPoint(closestBoundryPoint2D);
@@ -151,12 +166,15 @@ public class player_controller : MonoBehaviour
         return false;
     }
 
-    void spawnNewBodySection()
+    public void spawnNewBodySection(int count = 1)
     {
-        GameObject newBodySection = Instantiate(playerBodySection);
-        Vector3 lastPosition = getLastBodySectionPosition();
-        newBodySection.transform.position = new Vector3(lastPosition.x, lastPosition.y, lastPosition.z);
-        playerBodySections.Add(newBodySection);
+        for (int i = 0; i < count; i++)
+        {
+            GameObject newBodySection = Instantiate(playerBodySection);
+            Vector3 lastPosition = getLastBodySectionPosition();
+            newBodySection.transform.position = new Vector3(lastPosition.x, lastPosition.y, lastPosition.z);
+            playerBodySections.Add(newBodySection);
+        }
     }
 
     Vector3 getLastBodySectionPosition()
