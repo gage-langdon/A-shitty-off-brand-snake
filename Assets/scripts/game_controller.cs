@@ -1,51 +1,95 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.UI;
 using UnityEngine;
 
 public class game_controller : MonoBehaviour
 {
 
+    // Game Objects
     public GameObject food;
-    GameObject player;
+    public GameObject playerPrefab; // the main controller, init as prefab
+
+    // Config
+    public Vector3 playerSpawnPos = new Vector3(0f, 0f, 0f);
+
+    // UI
+    public GameObject MainMenu;
+    public GameObject GameOverMenu;
+    public GameObject ActiveGameMenu;
+    public TextMesh scoreText;
+    public Text FinalScoreText;
+
+    // Audio
+    public AudioSource audioSource_fx;
+    public AudioClip[] eatSounds;
+
+    // Runtime Global Vars
+    GameObject player; // player during runtime
     player_controller playerController;
     GameObject currentFood;
     float currentFoodSize;
     boundry gameBoundry;
+    bool isGameActive = false;
     private int currentScore;
-    public Text scoreText;
-
-
 
     // Start is called before the first frame update
     void Start()
     {
+        MainMenu.SetActive(true);
+        ActiveGameMenu.SetActive(false);
+    }
+
+    public void StartGame()
+    {
+        MainMenu.SetActive(false);
+        GameOverMenu.SetActive(false);
+        ActiveGameMenu.SetActive(true);
+        SpawnPlayer();
         currentScore = 0;
+        scoreText.text = "0";
         gameBoundry = GameObject.FindGameObjectWithTag("boundry").GetComponent<boundry>();
-        player = GameObject.FindGameObjectWithTag("Player"); // note: will need to update if we decide to go multiplayer and need to have reference to multiple players
+        isGameActive = true;
+    }
+
+    public void EndGame()
+    {
+        isGameActive = false;
+        playerController.kill();
+        Destroy(currentFood);
+        FinalScoreText.text = currentScore.ToString();
+        ActiveGameMenu.SetActive(false);
+        GameOverMenu.SetActive(true);
+    }
+
+    public void TerminateClient()
+    {
+        Application.Quit();
+    }
+
+    void SpawnPlayer()
+    {
+        player = Instantiate(playerPrefab, playerSpawnPos, Quaternion.identity);
         playerController = player.GetComponent<player_controller>();
     }
 
     void FixedUpdate()
     {
+        if (isGameActive) activeGameFixedUpdate();
+    }
+
+    // Should only run when game is active as it requires food and player
+    void activeGameFixedUpdate()
+    {
         if (currentFood == null) SpawnFood();
         if (hasPlayerCollidedWithFood())
-        {
-            
-            Destroy(currentFood);
-            playerController.spawnNewBodySection(10);
-            AddPoints();
-        }
+            onPlayerCollisionWithFood();
     }
-    
+
     void AddPoints()
     {
         currentScore++;
-        Debug.Log(currentScore);
-        
-    } 
-    private void HandleScore ()
-    {
-        scoreText.text = "Score: " + currentScore;
+        scoreText.text = currentScore.ToString();
     }
 
     void SpawnFood()
@@ -54,12 +98,43 @@ public class game_controller : MonoBehaviour
         Vector3 randomPos = gameBoundry.getRandomPositionInsideBoundry();
         Vector3 spawnPos = new Vector3(randomPos.x, randomPos.y, player.transform.position.z);
         currentFood = Instantiate(food, spawnPos, Quaternion.identity);
-        currentFoodSize = currentFood.GetComponent<Renderer>().bounds.size.x;
+        currentFoodSize = currentFood.GetComponentInChildren<Renderer>().bounds.size.x;
     }
 
     bool hasPlayerCollidedWithFood()
     {
-        if (Vector3.Distance(player.transform.position, currentFood.transform.position) <= currentFoodSize) return true;
+        if (Vector3.Distance(new Vector3(player.transform.position.x, player.transform.position.y), new Vector3(currentFood.transform.transform.position.x, currentFood.transform.position.y)) <= currentFoodSize) return true;
         return false;
+    }
+
+    void onPlayerCollisionWithFood()
+    {
+        Destroy(currentFood);
+        playerController.spawnNewBodySection(10);
+        AddPoints();
+
+        // play random sound effect
+        AudioClip randomFX = getRandomAudioClipFromArray(eatSounds);
+        playFxSound(randomFX);
+    }
+
+    AudioClip getRandomAudioClipFromArray(AudioClip[] audioClips)
+    {
+        if (audioClips.Length < 1)
+        {
+            Debug.LogError("No Audio Clips supplied");
+            return null;
+        }
+        int rand = Random.Range(0, audioClips.Length - 1);
+        return audioClips[rand];
+    }
+
+
+    void playFxSound(AudioClip audioClip)
+    {
+        if (audioClip == null) return;
+        audioSource_fx.Stop();
+        audioSource_fx.clip = audioClip;
+        audioSource_fx.Play();
     }
 }
