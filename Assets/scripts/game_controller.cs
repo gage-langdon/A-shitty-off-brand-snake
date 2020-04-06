@@ -11,10 +11,15 @@ public class game_controller : MonoBehaviour
     GameObject currentFood;
     float currentFoodSize;
     boundry gameBoundry;
+    private int currentScore;
+    public Text scoreText;
+
+
 
     // Start is called before the first frame update
     void Start()
     {
+        currentScore = 0;
         gameBoundry = GameObject.FindGameObjectWithTag("boundry").GetComponent<boundry>();
         player = GameObject.FindGameObjectWithTag("Player"); // note: will need to update if we decide to go multiplayer and need to have reference to multiple players
         playerController = player.GetComponent<player_controller>();
@@ -25,9 +30,22 @@ public class game_controller : MonoBehaviour
         if (currentFood == null) SpawnFood();
         if (hasPlayerCollidedWithFood())
         {
+            
             Destroy(currentFood);
             playerController.spawnNewBodySection(10);
+            AddPoints();
         }
+    }
+    
+    void AddPoints()
+    {
+        currentScore++;
+        Debug.Log(currentScore);
+        
+    } 
+    private void HandleScore ()
+    {
+        scoreText.text = "Score: " + currentScore;
     }
 
     void SpawnFood()
