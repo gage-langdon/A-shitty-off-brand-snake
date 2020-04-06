@@ -13,18 +13,23 @@ public class player_controller : MonoBehaviour
     public string left = "a";
     public string right = "d";
 
+    game_controller gameController;
+
     private Transform transform;
     private MeshRenderer meshRenderer;
     private GameObject boundry; // The background blob boundry, this needs to have a EdgeCollider2D attached and a tag of "boundry"
     private EdgeCollider2D boundryCollider;
     public float boundryPadding = 0.1f;
-    public float playerSpeed = 0.1f;
+    public float playerSpeed = 0.05f;
+    public float playerSpeedFoodIncrement = 0.025f; // what is added to the speed each time a food is eaten
     public GameObject head;
     public GameObject playerBodySection;
     public int startingSize = 3;
     private List<GameObject> playerBodySections = new List<GameObject>();
     private int playerBodyLength = 1;
     private bool isPlayerMoving = false;
+    private float headSize;
+    public int selfCollisionPadding = 1;
 
 
     bool moveUp = true; // default to move up on game start
@@ -36,10 +41,12 @@ public class player_controller : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        gameController = GameObject.FindGameObjectWithTag("GameController").GetComponent<game_controller>();
         transform = GetComponent<Transform>();
         meshRenderer = GetComponentInChildren<MeshRenderer>();
         boundry = GameObject.FindGameObjectWithTag("boundry");
         boundryCollider = boundry.GetComponent<EdgeCollider2D>();
+        headSize = head.GetComponent<Renderer>().bounds.size.x;
 
         // Spawn initial body
         playerBodySections.Add(head);
@@ -57,20 +64,10 @@ public class player_controller : MonoBehaviour
         // getControllerInput();
         movePlayerBody();
 
-        // randomly spawn new body parts
-        // float spawnRNG = Random.Range(0f, 1f);
-        // if (spawnRNG < .01f)
-        // {
-        //     spawnNewBodySection();
-        // }
+        // Player death with collides with itself
+        if (hasCollidedWithSelf())
+            gameController.EndGame();
     }
-
-    void OnCollisionEnter(Collision collision)
-    {
-        GameObject collidedGO = collision.gameObject;
-        Debug.Log("collision with player: " + collidedGO.name);
-    }
-
 
     void getControllerInput()
     {
@@ -175,6 +172,7 @@ public class player_controller : MonoBehaviour
             newBodySection.transform.position = new Vector3(lastPosition.x, lastPosition.y, lastPosition.z);
             playerBodySections.Add(newBodySection);
         }
+        playerSpeed = playerSpeed + playerSpeedFoodIncrement;
     }
 
     Vector3 getLastBodySectionPosition()
@@ -185,7 +183,7 @@ public class player_controller : MonoBehaviour
 
     void movePlayerBody()
     {
-        if (playerBodySections.Count < 2) return; // dont need to interpolate if only head exists
+        if (playerBodySections.Count == 1) return; // dont need to interpolate if only head exists
         if (isPlayerMoving == false) return; // dont move the nodes if the player isnt moving
 
         // Worm body nodes should follow the node that came before it
@@ -195,8 +193,30 @@ public class player_controller : MonoBehaviour
             GameObject targetBodySection = playerBodySections[i];
 
             // move the next section toward the current section over time
-            currentBodySection.transform.position = Vector3.Lerp(currentBodySection.transform.position, targetBodySection.transform.position, Time.deltaTime / playerSpeed);
+            currentBodySection.transform.position = Vector3.Lerp(currentBodySection.transform.position, targetBodySection.transform.position, Time.deltaTime / playerSpeed * 2);
         }
+    }
+
+    bool hasCollidedWithSelf()
+    {
+        for (int i = selfCollisionPadding; i < playerBodySections.Count; i++)
+        {
+            GameObject currentBodySection = playerBodySections[i];
+            if (Vector3.Distance(head.transform.position, currentBodySection.transform.position) <= headSize) return true;
+        }
+        return false;
+    }
+
+    public void kill()
+    {
+
+        // destroy on the points
+        for (int i = 0; i < playerBodySections.Count; i++)
+        {
+            Destroy(playerBodySections[i]);
+        }
+        // destroy self
+        Destroy(this.gameObject);
     }
 
 }
