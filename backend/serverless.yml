@@ -1,9 +1,37 @@
 service: a-shitty-off-brand-snake-game
 
+plugins:
+  - serverless-offline
+
 provider:
   name: aws
   runtime: nodejs12.x
+  region: us-west-2
+
+environment:
+  tables:
+    SCORES_TABLE: a-shitty-off-brand-snake-game-leaderboard
+
+iamRoleStatements:
+  - Effect: Allow
+    Action:
+      - dynamodb:Query
+      - dynamodb:PutItem
+    Resource: "arn:aws:dynamodb:us-west-2:*:*"
 
 functions:
-  hello:
-    handler: handler.hello
+  getScores:
+    handler: src/handlers/scores.getScores
+    events:
+      - http:
+          path: snek/getScores
+          method: get
+          cors: true
+
+  postScore:
+    handler: src/handlers/scores.postScore
+    events:
+      - http:
+          path: snek/postScore
+          method: post
+          cors: true
