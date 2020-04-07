@@ -8,9 +8,7 @@ provider:
   runtime: nodejs12.x
   region: us-west-2
   stage: prod
-
-environment:
-  tables:
+  environment:
     SCORES_TABLE: a-shitty-off-brand-snake-game-leaderboard
 
 iamRoleStatements:
@@ -25,7 +23,7 @@ functions:
     handler: handlers/scores.getScores
     events:
       - http:
-          path: snek/getScores
+          path: snek/scores
           method: get
           cors: true
 
@@ -33,6 +31,6 @@ functions:
     handler: handlers/scores.postScore
     events:
       - http:
-          path: snek/postScore
+          path: snek/scores
           method: post
           cors: true
