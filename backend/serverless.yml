@@ -1,0 +1,9 @@
+service: a-shitty-off-brand-snake-game
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+
+functions:
+  hello:
+    handler: handler.hello
