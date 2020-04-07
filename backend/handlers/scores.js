@@ -1,5 +1,27 @@
-export const getScores = () => {};
+const uuid = require("uuid/v4");
 
-export const postScores = () => {};
+module.exports.getScores = async (event) => {
+  return {
+    statusCode: 200,
+    body: JSON.stringify(
+      {
+        scores: [{ id: uuid(), name: "FLEEB", score: 1 }],
+      },
+      null,
+      2
+    ),
+  };
+};
 
-export default { postScores, getScores };
+module.exports.postScore = async (event) => {
+  return {
+    statusCode: 200,
+    body: JSON.stringify(
+      {
+        score: { id: uuid(), name: "FLEEB", score: 1 },
+      },
+      null,
+      2
+    ),
+  };
+};

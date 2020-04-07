@@ -7,6 +7,7 @@ provider:
   name: aws
   runtime: nodejs12.x
   region: us-west-2
+  stage: prod
 
 environment:
   tables:
@@ -21,7 +22,7 @@ iamRoleStatements:
 
 functions:
   getScores:
-    handler: src/handlers/scores.getScores
+    handler: handlers/scores.getScores
     events:
       - http:
           path: snek/getScores
@@ -29,7 +30,7 @@ functions:
           cors: true
 
   postScore:
-    handler: src/handlers/scores.postScore
+    handler: handlers/scores.postScore
     events:
       - http:
           path: snek/postScore
