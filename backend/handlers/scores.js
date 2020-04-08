@@ -22,7 +22,7 @@ module.exports.getScores = async (event, context, callback) => {
   }
 };
 
-module.exports.postScore = async (event) => {
+module.exports.postScore = async (event, context, callback) => {
   context.callbackWaitsForEmptyEventLoop = false;
   const res = Response(callback);
   try {
