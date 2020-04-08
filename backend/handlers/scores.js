@@ -2,6 +2,7 @@ const UserModel = require("../models/user");
 const { Response } = require("../utils/response");
 
 module.exports.getScores = async (event, context, callback) => {
+  context.callbackWaitsForEmptyEventLoop = false;
   const res = Response(callback);
   try {
     const User = await UserModel();
@@ -22,6 +23,7 @@ module.exports.getScores = async (event, context, callback) => {
 };
 
 module.exports.postScore = async (event) => {
+  context.callbackWaitsForEmptyEventLoop = false;
   const res = Response(callback);
   try {
     const { score, name } = JSON.parse(event.body);
