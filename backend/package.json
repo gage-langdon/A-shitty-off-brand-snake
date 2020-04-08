@@ -1,0 +1,26 @@
+{
+  "name": "a-shitty-off-brand-snake-game",
+  "version": "1.0.0",
+  "description": "Snek wow!",
+  "dependencies": {
+    "aws-sdk": "^2.654.0",
+    "serverless": "^1.67.1",
+    "uuid": "^7.0.3"
+  },
+  "devDependencies": {
+    "serverless-offline": "^6.1.4"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gage-langdon/A-shitty-off-brand-snake.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gage-langdon/A-shitty-off-brand-snake/issues"
+  },
+  "homepage": "https://github.com/gage-langdon/A-shitty-off-brand-snake#readme"
+}
