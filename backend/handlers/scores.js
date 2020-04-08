@@ -1,22 +1,19 @@
-const uuid = require("uuid/v4");
-const { dynamoDb } = require("../utils/dynamo");
-
-const TableName = process.env.SCORES_TABLE;
+const UserModel = require("../models/user");
 
 module.exports.getScores = async () => {
-  //   const params = {
-  //     TableName,
-  //     KeyConditionExpression: 'id = :id',
-  //     ExpressionAttributeValues: { ':pub_id': '700'}
-  //   };
-
-  //   const { items = [] } = (await dynamoDb.query(params).promise()) || {};
+  const User = await UserModel();
+  const users = await User.getUsersSortedByScore(10);
+  const leaderboard = users.map(({ name, score }, i) => ({
+    name,
+    score,
+    rank: i + 1,
+  }));
 
   return {
     statusCode: 200,
     body: JSON.stringify(
       {
-        scores: [{ id: uuid(), name: "FLEEB", score: 1 }],
+        scores: leaderboard,
       },
       null,
       2
@@ -28,22 +25,12 @@ module.exports.postScore = async (event) => {
   try {
     const { score, name } = JSON.parse(event.body);
 
-    const Item = {
-      id: uuid(),
-      score,
-      name,
-    };
-
-    const params = {
-      TableName,
-      Item,
-    };
-
-    await dynamoDb.put(params).promise();
+    const User = await UserModel();
+    const newUser = User.create({ name, score });
 
     return {
       statusCode: 200,
-      body: JSON.stringify(Item, null, 2),
+      body: JSON.stringify(newUser, null, 2),
     };
   } catch (e) {
     console.log("Failed to post score. Error: ", e);

@@ -11,12 +11,14 @@ namespace Shitty.Networking
 
         public string data = "";
         public bool error = false;
-
+        public bool useLocalApi = false;
+        public string localApiURI = "http://localhost:3000";
         public string apiURI = "https://1nmquhg2il.execute-api.us-west-2.amazonaws.com/prod/snek";
 
         public IEnumerator Post(string url, string bodyJsonString)
         {
-            var request = new UnityWebRequest(apiURI + url, "POST");
+            string URI = useLocalApi ? localApiURI : apiURI;
+            var request = new UnityWebRequest(URI + url, "POST");
             byte[] bodyRaw = Encoding.UTF8.GetBytes(bodyJsonString);
             request.uploadHandler = (UploadHandler)new UploadHandlerRaw(bodyRaw);
             request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();

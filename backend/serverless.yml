@@ -8,15 +8,6 @@ provider:
   runtime: nodejs12.x
   region: us-west-2
   stage: prod
-  environment:
-    SCORES_TABLE: a-shitty-off-brand-snake-game-leaderboard
-
-iamRoleStatements:
-  - Effect: Allow
-    Action:
-      - dynamodb:Query
-      - dynamodb:PutItem
-    Resource: "arn:aws:dynamodb:us-west-2:*:*"
 
 functions:
   getScores:

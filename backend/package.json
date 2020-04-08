@@ -4,10 +4,12 @@
   "description": "Snek wow!",
   "dependencies": {
     "aws-sdk": "^2.654.0",
+    "mongoose": "^5.9.7",
     "serverless": "^1.67.1",
     "uuid": "^7.0.3"
   },
   "devDependencies": {
+    "prettier": "^2.0.4",
     "serverless-offline": "^6.1.4"
   },
   "scripts": {
