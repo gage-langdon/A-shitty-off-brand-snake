@@ -26,7 +26,7 @@ namespace Shitty.Networking
 
             yield return request.SendWebRequest();
 
-            Debug.Log("Status Code: " + request.responseCode);
+            // Debug.Log("Status Code: " + request.responseCode);
         }
 
 

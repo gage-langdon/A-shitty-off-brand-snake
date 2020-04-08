@@ -180,7 +180,7 @@ Material:
     - _AOColor: {r: 0, g: 0, b: 0, a: 1}
     - _AmbientColor: {r: 0, g: 0, b: 0, a: 0}
     - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
-    - _Color: {r: 1, g: 0.79362303, b: 0, a: 0.3137255}
+    - _Color: {r: 1, g: 0.6840128, b: 0, a: 0.3137255}
     - _Color1: {r: 0, g: 0, b: 0, a: 1}
     - _Color1_B: {r: 1, g: 1, b: 1, a: 1}
     - _Color1_D: {r: 1, g: 1, b: 1, a: 1}

@@ -12,17 +12,10 @@ public class leaderboard : MonoBehaviour
 
     public List<Score> scores = new List<Score>();
 
-
-    public leaderboard()
-    {
-
-    }
-
-    public void Start()
-    {
+    // OnEnable is called when an object is set active with .SetActive
+    void OnEnable(){
         StartCoroutine(getLeaderboard());
     }
-
 
     public IEnumerator getLeaderboard()
     {

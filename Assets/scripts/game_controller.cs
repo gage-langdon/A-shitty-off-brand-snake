@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine;
+using Shitty.Networking;
 
 public class game_controller : MonoBehaviour
 {
@@ -17,6 +18,11 @@ public class game_controller : MonoBehaviour
     public GameObject MainMenu;
     public GameObject GameOverMenu;
     public GameObject ActiveGameMenu;
+    public GameObject SocialMenu;
+    public Text playerNameInput; 
+
+    public leaderboard leaderboard;
+
     public TextMesh scoreText;
     public Text FinalScoreText;
 
@@ -33,18 +39,22 @@ public class game_controller : MonoBehaviour
     bool isGameActive = false;
     private int currentScore;
 
+
     // Start is called before the first frame update
     void Start()
     {
         MainMenu.SetActive(true);
         ActiveGameMenu.SetActive(false);
+        SocialMenu.SetActive(true);
     }
 
     public void StartGame()
     {
+        if(playerNameInput.text == "") return; // dont allow game start unless player enters a name
         MainMenu.SetActive(false);
         GameOverMenu.SetActive(false);
         ActiveGameMenu.SetActive(true);
+        SocialMenu.SetActive(false);
         SpawnPlayer();
         currentScore = 0;
         scoreText.text = "0";
@@ -52,7 +62,7 @@ public class game_controller : MonoBehaviour
         isGameActive = true;
     }
 
-    public void EndGame()
+    public IEnumerator EndGame()
     {
         isGameActive = false;
         playerController.kill();
@@ -60,6 +70,9 @@ public class game_controller : MonoBehaviour
         FinalScoreText.text = currentScore.ToString();
         ActiveGameMenu.SetActive(false);
         GameOverMenu.SetActive(true);
+
+        yield return StartCoroutine(saveUserScore(playerNameInput.text, currentScore));
+
     }
 
     public void TerminateClient()
@@ -136,5 +149,17 @@ public class game_controller : MonoBehaviour
         audioSource_fx.Stop();
         audioSource_fx.clip = audioClip;
         audioSource_fx.Play();
+    }
+
+    IEnumerator saveUserScore(string name, int score)
+    {
+        JSONObject newSave = new JSONObject();
+        newSave.AddField("name", name);
+        newSave.AddField("score", score);
+
+        Http http = new Http();
+        yield return StartCoroutine(http.Post("/scores", newSave.ToString()));
+        SocialMenu.SetActive(true);
+
     }
 }
