@@ -1,9 +1,27 @@
 service: a-shitty-off-brand-snake-game
 
+plugins:
+  - serverless-offline
+
 provider:
   name: aws
   runtime: nodejs12.x
+  region: us-west-2
+  stage: prod
 
 functions:
-  hello:
-    handler: handler.hello
+  getScores:
+    handler: handlers/scores.getScores
+    events:
+      - http:
+          path: snek/scores
+          method: get
+          cors: true
+
+  postScore:
+    handler: handlers/scores.postScore
+    events:
+      - http:
+          path: snek/scores
+          method: post
+          cors: true

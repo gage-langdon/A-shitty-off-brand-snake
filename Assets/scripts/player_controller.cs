@@ -30,6 +30,7 @@ public class player_controller : MonoBehaviour
     private bool isPlayerMoving = false;
     private float headSize;
     public int selfCollisionPadding = 1;
+    private bool isAlive = false;
 
 
     bool moveUp = true; // default to move up on game start
@@ -53,6 +54,7 @@ public class player_controller : MonoBehaviour
         for (int i = 0; i < startingSize; i++)
             spawnNewBodySection();
 
+        isAlive = true;
 
 
     }
@@ -60,13 +62,21 @@ public class player_controller : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        getKeyboardInput();
-        // getControllerInput();
-        movePlayerBody();
+        if(isAlive){
+            getKeyboardInput();
+            // getControllerInput();
+            movePlayerBody();
 
-        // Player death with collides with itself
-        if (hasCollidedWithSelf())
-            gameController.EndGame();
+            // Player death with collides with itself
+            if (hasCollidedWithSelf())
+                StartCoroutine(endGame());
+        }
+    }
+
+    IEnumerator endGame()
+    {
+        isAlive = false;
+         yield return StartCoroutine(gameController.EndGame());
     }
 
     void getControllerInput()
