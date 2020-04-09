@@ -96,10 +96,10 @@ public class player_controller : MonoBehaviour
         isPlayerMoving = false;
 
         // Where is the user wanting to move?
-        bool keyPressedUp = Input.GetKey(up);
-        bool keyPressedDown = Input.GetKey(down);
-        bool keyPressedLeft = Input.GetKey(left);
-        bool keyPressedRight = Input.GetKey(right);
+        bool keyPressedUp = Input.GetKey(up) || Input.GetKey(KeyCode.UpArrow);
+        bool keyPressedDown = Input.GetKey(down) || Input.GetKey(KeyCode.DownArrow);
+        bool keyPressedLeft = Input.GetKey(left)|| Input.GetKey(KeyCode.LeftArrow);
+        bool keyPressedRight = Input.GetKey(right)|| Input.GetKey(KeyCode.RightArrow);
 
         // If the player is going to be moving at all, reset the movement cache
         if (keyPressedUp || keyPressedDown || keyPressedLeft || keyPressedRight)
@@ -111,10 +111,10 @@ public class player_controller : MonoBehaviour
         }
 
         // Set the movement cache (we want the worm to continuasly move, so this just sets the last direction)
-        if (Input.GetKey(up)) moveUp = true;
-        if (Input.GetKey(down)) moveDown = true;
-        if (Input.GetKey(left)) moveLeft = true;
-        if (Input.GetKey(right)) moveRight = true;
+        if (keyPressedUp) moveUp = true;
+        if (keyPressedDown) moveDown = true;
+        if (keyPressedLeft) moveLeft = true;
+        if (keyPressedRight) moveRight = true;
 
 
         // Can the player move anymore in the current direction?
