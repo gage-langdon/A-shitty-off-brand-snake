@@ -51,13 +51,14 @@ MonoBehaviour:
   left: a
   right: d
   boundryPadding: 0.1
-  playerSpeed: 0.05
+  playerSpeed: 3
   playerSpeedFoodIncrement: 0.001
   head: {fileID: 680439947727614869}
   playerBodySection: {fileID: 9106802144117919879, guid: 62cb1b609be159944b711a1a5d74734c,
     type: 3}
   startingSize: 20
   selfCollisionPadding: 30
+  useMouseControls: 1
 --- !u!1 &680439947258202872
 GameObject:
   m_ObjectHideFlags: 0
