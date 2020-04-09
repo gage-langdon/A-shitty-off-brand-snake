@@ -38,6 +38,7 @@ public class game_controller : MonoBehaviour
     boundry gameBoundry;
     bool isGameActive = false;
     private int currentScore;
+    private AudioListener mainAudioListener;
 
 
     // Start is called before the first frame update
@@ -46,6 +47,8 @@ public class game_controller : MonoBehaviour
         MainMenu.SetActive(true);
         ActiveGameMenu.SetActive(false);
         SocialMenu.SetActive(true);
+        GameOverMenu.SetActive(false);
+        mainAudioListener = Camera.main.GetComponent<AudioListener>();
     }
 
     public void StartGame()
@@ -84,6 +87,12 @@ public class game_controller : MonoBehaviour
     {
         player = Instantiate(playerPrefab, playerSpawnPos, Quaternion.identity);
         playerController = player.GetComponent<player_controller>();
+    }
+
+    public void ToggleAudio()
+    {
+        AudioListener.pause = !AudioListener.pause;
+        playRandomFxSound();
     }
 
     void FixedUpdate()
@@ -126,7 +135,11 @@ public class game_controller : MonoBehaviour
         playerController.spawnNewBodySection(10);
         AddPoints();
 
-        // play random sound effect
+        playRandomFxSound();
+    }
+
+    void playRandomFxSound()
+    {
         AudioClip randomFX = getRandomAudioClipFromArray(eatSounds);
         playFxSound(randomFX);
     }
