@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine;
 using Shitty.Networking;
+using System.Text.RegularExpressions;
 
 public class game_controller : MonoBehaviour
 {
@@ -20,6 +21,8 @@ public class game_controller : MonoBehaviour
     public GameObject ActiveGameMenu;
     public GameObject SocialMenu;
     public Text playerNameInput; 
+    public Text playerNameInputError;
+
 
     public leaderboard leaderboard;
 
@@ -53,7 +56,10 @@ public class game_controller : MonoBehaviour
 
     public void StartGame()
     {
-        if(playerNameInput.text == "") return; // dont allow game start unless player enters a name
+        
+        // dont allow game start unless player enters a valid name
+        if(!isValidName(playerNameInput.text)) return;
+        
         MainMenu.SetActive(false);
         GameOverMenu.SetActive(false);
         ActiveGameMenu.SetActive(true);
@@ -63,6 +69,17 @@ public class game_controller : MonoBehaviour
         scoreText.text = "0";
         gameBoundry = GameObject.FindGameObjectWithTag("boundry").GetComponent<boundry>();
         isGameActive = true;
+    }
+
+    bool isValidName(string name)
+    {   
+        if(name.Trim().Length < 1) 
+        {
+            playerNameInputError.text = "Please enter a name.";
+            return false;
+        }
+        playerNameInputError.text = "";
+        return true;
     }
 
     public IEnumerator EndGame()
