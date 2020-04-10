@@ -90,6 +90,7 @@ public class game_controller : MonoBehaviour
         FinalScoreText.text = currentScore.ToString();
         ActiveGameMenu.SetActive(false);
         GameOverMenu.SetActive(true);
+        SocialMenu.SetActive(true);
 
         yield return StartCoroutine(saveUserScore(playerNameInput.text, currentScore));
 
@@ -189,7 +190,7 @@ public class game_controller : MonoBehaviour
 
         Http http = new Http();
         yield return StartCoroutine(http.Post("/scores", newSave.ToString()));
-        SocialMenu.SetActive(true);
+        leaderboard.forceUpdate();
 
     }
 }

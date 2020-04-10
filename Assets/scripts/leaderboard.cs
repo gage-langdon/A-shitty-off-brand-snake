@@ -11,14 +11,31 @@ public class leaderboard : MonoBehaviour
     public Text leaderboard_text;
 
     public List<Score> scores = new List<Score>();
+    private bool shouldUpdate = true;
 
     // OnEnable is called when an object is set active with .SetActive
+
+    void Start(){
+        leaderboard_text.text = "";
+    }
+
     void OnEnable(){
-        StartCoroutine(getLeaderboard());
+        forceUpdate();
+    }
+
+    public void forceUpdate()
+    {
+        shouldUpdate = true;
+    }
+
+    void FixedUpdate()
+    {
+        if(shouldUpdate) StartCoroutine(getLeaderboard());
     }
 
     public IEnumerator getLeaderboard()
     {
+        shouldUpdate = false;
         Http http = new Http();
         yield return StartCoroutine(http.Get("/scores"));
         JSONObject scoresJson = new JSONObject(http.data).GetField("scores");
@@ -41,6 +58,7 @@ public class leaderboard : MonoBehaviour
 
     void updateLeaderboardUI()
     {
+        Debug.Log("Update leaderboard");
         string newLeaderboardText = "";
 
         // Format and append all the scores to the leaderboard
