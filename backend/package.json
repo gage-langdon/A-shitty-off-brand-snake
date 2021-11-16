@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Snek wow!",
   "dependencies": {
-    "aws-sdk": "^2.654.0",
+    "aws-sdk": "^2.814.0",
     "mongoose": "^5.9.7",
     "serverless": "^1.67.1",
     "uuid": "^7.0.3"
