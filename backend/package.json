@@ -5,7 +5,7 @@
   "dependencies": {
     "aws-sdk": "^2.654.0",
     "mongoose": "^5.9.7",
-    "serverless": "^1.67.1",
+    "serverless": "^3.25.1",
     "uuid": "^7.0.3"
   },
   "devDependencies": {
